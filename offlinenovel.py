@@ -12,8 +12,7 @@ def query_homepage(site, novel):
 	if site == "wuxiaworld":
 		query += "//ul[@class='sub-menu']/li/a["
 		if len(novel) == 1:
-			print novel[0]
-			query += "contains(text(), " + novel[0] + ")]/@href"
+			query += "contains(text(), '" + novel[0] + "')]/@href"
 		else: 
 			for word in novel:
 				query += "contains(text(), '" + word + "') and "
@@ -28,7 +27,6 @@ def query_indexpage(site, indexpage):
 		query += ("//a[contains(text(), 'Chapter') and " + 
 					   "contains(@href, '" + indexpage +
 					   "')]/@href")
-		# query += ("//a[contains(text(), 'Chapter')]/@href")
 	return query
 
 def query_chapterpage(site):
@@ -36,7 +34,8 @@ def query_chapterpage(site):
 	if site == "wuxiaworld":
 		query += ("//div[@itemprop='articleBody']/p/text()" +
 				   "|//div[@itemprop='articleBody']/p/strong/text()" + 
-				   "|//div[@itemprop='articleBody']/p/b/text()")
+				   "|//div[@itemprop='articleBody']/p/b/text()" +
+				   "|//div[@id='chapterContent']/p/text()")
 
 	return query
 
@@ -54,13 +53,11 @@ if __name__ == '__main__':
 		site = str(sys.argv[1])
 		homepage_url = "http://www." + str(sys.argv[1]) + ".com"
 		novel_to_search = str(sys.argv[2]).split()
-		print novel_to_search
 
 		with open(sys.argv[2] + ".txt", 'w') as f:
 			homepage = requests.request('GET', homepage_url, headers=headers)
 			content = html.fromstring(homepage.content)
 			query = query_homepage(site, novel_to_search)
-			print query
 			matching_link = content.xpath(query)[0]
 
 			indexpage = requests.request('GET', matching_link, headers=headers)
